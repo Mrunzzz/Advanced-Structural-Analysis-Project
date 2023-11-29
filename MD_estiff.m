@@ -1,7 +1,7 @@
 function [elk] = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
-% Code modified by Mrunmayi Mungekar and Devasmit Dutta
+% Code developed by Mrunmayi Mungekar and Devasmit Dutta
 % 
-%MD_estiff.m computes the element stiffness matrix for a given element
+% MD_estiff.m computes the element stiffness matrix for a given element
 %
 
 %
@@ -11,6 +11,7 @@ function [elk] = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
 %              none
 %
 %  Dictionary of Variables
+%  Input information
                 % A = cross-sectional area
                 % Izz = moment of inertia about local z-axis
                 % Iyy = moment of inertia about local y-axis
@@ -27,6 +28,8 @@ function [elk] = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
                 % kJ = torsional stiffness
                 % etaz = shear coefficient along local z-axis
                 % etay = shear coefficient along local y-axis
+%                
+% Output information
                 % elk = complete element stiffness matrix
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

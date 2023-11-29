@@ -1,5 +1,5 @@
-% Code modified by Mrunmayi Mungekar and Devasmit Dutta
-%MD_validate_elk_gamma validates the results from the two functions MD_estiff and MD_etran
+% Code developed by Mrunmayi Mungekar and Devasmit Dutta
+% MD_validate_elk_gamma validates the results from the two functions MD_estiff and MD_etran
 %  Functions Called
 %              none
 %

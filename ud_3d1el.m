@@ -2,9 +2,9 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 	nnodes,coord,concen,fixity,nele,ends,A,Izz,Iyy,J,Cw,IsSym,Ysc,Zsc,Betay,Betaz,Betaw,Zzz,Zyy,Ayy,Azz,...
 	E,v,Fy,YldSurf,Wt,webdir,beta_ang,w,thermal,truss,anatype);
 
-% Code modified by Mrunmayi Mungekar and Devasmit Dutta
+% Code developed by Mrunmayi Mungekar and Devasmit Dutta
 % 
-%UD_3D1EL performs a user defined three-dimensional
+% UD_3D1EL performs a user defined three-dimensional
 % first-order elastic analysis of a structural system.
 %
 
