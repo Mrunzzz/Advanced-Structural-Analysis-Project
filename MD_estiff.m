@@ -1,4 +1,35 @@
 function [elk] = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
+% Code modified by Mrunmayi Mungekar and Devasmit Dutta
+% 
+%MD_estiff.m computes the element stiffness matrix for a given element
+%
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Functions Called
+%              none
+%
+%  Dictionary of Variables
+                % A = cross-sectional area
+                % Izz = moment of inertia about local z-axis
+                % Iyy = moment of inertia about local y-axis
+                % J = torsional constant
+                % Ayy = shear area along local y-axis
+                % Azz = shear area along local z-axis
+                % E = Young's modulus
+                % v = Poisson's ratio
+                % L = element length
+
+                % G = shear modulus
+                % elk_temp = temporary element stiffness matrix (just the lower triangular part)
+                % kA = axial stiffness
+                % kJ = torsional stiffness
+                % etaz = shear coefficient along local z-axis
+                % etay = shear coefficient along local y-axis
+                % elk = complete element stiffness matrix
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Consolidating the geometric and material properties
 
