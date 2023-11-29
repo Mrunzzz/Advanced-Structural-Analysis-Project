@@ -1,6 +1,7 @@
 function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
-		nnodes,coord,concen,fixity,nele,ends,A,Izz,Iyy,J,Cw,IsSym,Ysc,Zsc,Betay,Betaz,Betaw,Zzz,Zyy,Ayy,Azz,...
-		E,v,Fy,YldSurf,Wt,webdir,beta_ang,w,thermal,truss,anatype);
+	nnodes,coord,concen,fixity,nele,ends,A,Izz,Iyy,J,Cw,IsSym,Ysc,Zsc,Betay,Betaz,Betaw,Zzz,Zyy,Ayy,Azz,...
+	E,v,Fy,YldSurf,Wt,webdir,beta_ang,w,thermal,truss,anatype);
+
 %UD_3D1EL performs a user defined three-dimensional
 % first-order elastic analysis of a structural system.
 %
@@ -109,7 +110,7 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %                          as follows: First, calculate a unit vector, x_vect, that
 %                          describes the element's local x-axis. Second, take the
 %                          cross product of x_vect and webdir(i,:) to obtain z_vect,
-%                          i.e. z_vect = cross(x_vect,webdir(i,:)). Third, set z_vect 
+%                          i.e. z_vect = cross(x_vect,webdir(i,:)). Third, set z_vect
 %                          to a unit vector, i.e. z_vect = z_vect/norm(z_vect).
 %                          Finally, the first row of [g] is x_vect, its second row is
 %                          webdir(i,:), and its third row is z_vect.
@@ -190,7 +191,7 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %                              ELE_FOR(i,11) = y-moment at end node
 %                              ELE_FOR(i,12) = z-moment at end node
 %                            If you are not programming warping torsion, the ELE_FOR
-%                            array needs to contain only 12 columns, i.e. ELE_FOR(i,1:12)                           
+%                            array needs to contain only 12 columns, i.e. ELE_FOR(i,1:12)
 %                            For those programming warping torsion, the bimoments and
 %                            rates of twist should be stored as follows.
 %                              ELE_FOR(i,13) = bimoment at start node
@@ -204,15 +205,94 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %                              AFLAG = inf   No analysis code available
 %
 %
-%       Version 1.0/Student's Initials/Date of Modification
+%       Version 1.0/M D/11-29-2023
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Start by defining all output arrays to be empty
 %
-	DEFL=[]; REACT=[]; ELE_FOR=[];
+DEFL=[]; REACT=[]; ELE_FOR=[];
 %
-	AFLAG = inf;
+% Display each input of the function on a new line
+disp('Number of nodes');
+disp(nnodes);
+
+disp('Coordinates of nodes');
+disp(coord);
+
+disp('Concentrated loads');
+disp(concen);
+
+disp('Prescribed displacements');
+disp(fixity);
+
+disp('Number of elements');
+disp(nele);
+
+disp('Element nodal information');
+disp(ends);
+
+disp('Cross sectional area');
+disp(A);
+
+disp('Moment of inertia about local z axis');
+disp(Izz);
+
+disp('Moment of inertia about local y axis');
+disp(Iyy);
+
+disp('Torsional constant');
+disp(J);
+
+disp('Warping constant');
+disp(Cw);
+
+disp('Plastic section modulus about local z axis');
+disp(Zzz);
+
+disp('Plastic section modulus about local y axis');
+disp(Zyy);
+
+disp('Effective shear area along local y axis');
+disp(Ayy);
+
+disp('Effective shear area along local z axis');
+disp(Azz);
+
+disp('Elastic modulus');
+disp(E);
+
+disp('Poisson''s ratio');
+disp(v);
+
+disp('Yield strength');
+disp(Fy);
+
+disp('Yield surface maximum values');
+disp(YldSurf);
+
+disp('Weight density');
+disp(Wt);
+
+disp('Unit web vector');
+disp(webdir);
+
+disp('Web rotation angle');
+disp(beta_ang);
+
+disp('Uniform loads');
+disp(w);
+
+disp('Thermal strain effects');
+disp(thermal);
+
+disp('Truss flag');
+disp(truss);
+
+disp('Analysis type');
+disp(anatype);
+
+AFLAG = inf;
 %
 %  STUDENT NOTE:
 %     In order for this routine to become fully active AFLAG
