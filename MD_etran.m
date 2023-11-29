@@ -1,18 +1,36 @@
-function gamma = MD_etran(coordi, coordj, webdir)
+function [gamma] = MD_etran (coordi, coordj, webdir)
 
-    
 
-    small_gamma = zeros(3,3);
-    small_gamma(2,:) = webdir;
+global_x = [1 ;0 ;0];
+global_y = [0 ;1 ;0];
+global_z = [0 ;0 ;1];
 
-    L = norm(coordj-coordi);
+local_x = coordj - coordi
+local_y = webdir
+local_z = cross(local_x,local_y)
 
-    for i=1:3
-        small_gamma(1,i) = (coordj(i)-coordi(i))/L;
-    end
+phixx = acos(dot(local_x,global_x)/(norm(local_x)*norm(global_x)))
+phixy = acos(dot(local_x,global_y)/(norm(local_x)*norm(global_y)))
+phixz = acos(dot(local_x,global_z)/(norm(local_x)*norm(global_z)))
+phiyx = acos(dot(local_y,global_x)/(norm(local_y)*norm(global_x)))
+phiyy = acos(dot(local_y,global_y)/(norm(local_y)*norm(global_y)))
+phiyz = acos(dot(local_y,global_z)/(norm(local_y)*norm(global_z)))
 
-    small_gamma(3,:) = cross(small_gamma(1,:),small_gamma(2,:));
+thetaxx = phixx
+thetaxy = phixy
+thetaxz = phixz
+thetayx = phiyx
+thetayy = phiyy
+thetayz = phiyz
+	
+mat = [cos(thetaxx) cos(thetaxy) cos(thetaxz);
+	   cos(thetayx) cos(thetayy) cos(thetayz);
+       zeros(1,3)]
 
-    gamma_temp = repmat({small_gamma}, 1, 4);
-    gamma = blkdiag(gamma_temp{:});
-
+mat(3,:) = cross(mat(1,:),mat(2,:));
+G = mat;
+	
+gamma = [   G                  zeros(3,9);
+	     zeros(3,3)      G     zeros(3,6);
+	     zeros(3,6)      G     zeros(3,3);
+		 zeros(3,9)            G]
