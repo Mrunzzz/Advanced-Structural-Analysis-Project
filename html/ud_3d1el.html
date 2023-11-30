@@ -1,0 +1,712 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>ud_3d1el</title>
+<meta name="generator" content="MATLAB 23.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2023-11-29">
+<meta name="DC.source" content="ud_3d1el.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<pre class="codeinput">
+<span class="keyword">function</span> [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(<span class="keyword">...</span>
+	nnodes,coord,concen,fixity,nele,ends,A,Izz,Iyy,J,Cw,IsSym,Ysc,Zsc,Betay,Betaz,Betaw,Zzz,Zyy,Ayy,Azz,<span class="keyword">...</span>
+	E,v,Fy,YldSurf,Wt,webdir,beta_ang,w,thermal,truss,anatype);
+
+<span class="comment">% Code developed by Mrunmayi Mungekar and Devasmit Dutta</span>
+<span class="comment">%</span>
+<span class="comment">% UD_3D1EL performs a user defined three-dimensional</span>
+<span class="comment">% first-order elastic analysis of a structural system.</span>
+<span class="comment">%</span>
+
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">%  Functions Called</span>
+<span class="comment">%              &lt; to be defined by the student &gt;</span>
+<span class="comment">%</span>
+<span class="comment">%  Dictionary of Variables</span>
+<span class="comment">%     Input Information:</span>
+<span class="comment">%       nnodes         ==  total number of nodes</span>
+<span class="comment">%       coord(i,1:3)   ==  node i's coordinates</span>
+<span class="comment">%                            coord(i,1) = X coordinate</span>
+<span class="comment">%                            coord(i,2) = Y coordinate</span>
+<span class="comment">%                            coord(i,3) = Z coordinate</span>
+<span class="comment">%       concen(i,1:6)  ==  concentrated loads for node i's 6 d.o.f.</span>
+<span class="comment">%                            concen(i,1) = force in global X direction</span>
+<span class="comment">%                            concen(i,2) = force in global Y direction</span>
+<span class="comment">%                            concen(i,3) = force in global Z direction</span>
+<span class="comment">%                            concen(i,4) = moment about global X axis</span>
+<span class="comment">%                            concen(i,5) = moment about global Y axis</span>
+<span class="comment">%                            concen(i,6) = moment about global Z axis</span>
+<span class="comment">%       fixity(i,1:6)  ==  prescribed displacements for node i's 6 d.o.f.</span>
+<span class="comment">%                          Note: A free d.o.f. will have a value of NaN</span>
+<span class="comment">%                          and hence, you will find the Matlab function</span>
+<span class="comment">%                          isnan very useful.</span>
+<span class="comment">%                          Examples: If fixity(15,3) is set to NaN, then node 15's</span>
+<span class="comment">%                                      Z-disp component is free;</span>
+<span class="comment">%                                    If fixity(2,6) is set to 0.0, then node 2's</span>
+<span class="comment">%                                      Z-rotation component is supported;</span>
+<span class="comment">%                                    If fixity(5,2) is set to -2.1, then node 5's</span>
+<span class="comment">%                                      Y-disp component is supported and defined</span>
+<span class="comment">%                                      with a settlement of -2.1 units.</span>
+<span class="comment">%                            fixity(i,1) = prescribed disp. in global X direction</span>
+<span class="comment">%                            fixity(i,2) = prescribed disp. in global Y direction</span>
+<span class="comment">%                            fixity(i,3) = prescribed disp. in global Z direction</span>
+<span class="comment">%                            fixity(i,4) = prescribed rotation about global X axis</span>
+<span class="comment">%                            fixity(i,5) = prescribed rotation about global Y axis</span>
+<span class="comment">%                            fixity(i,6) = prescribed rotation about global Z axis</span>
+<span class="comment">%       nele           ==  total number of elements</span>
+<span class="comment">%       ends(i,1:14)   ==  element i's nodal information</span>
+<span class="comment">%                            ends(i,1) = start node #</span>
+<span class="comment">%                            ends(i,2) = finish node #</span>
+<span class="comment">%                            ends(i,3) = flag to indicate whether or not flexural</span>
+<span class="comment">%                            moments are released at start node.  ends(i,3)=0 both not</span>
+<span class="comment">%                            released (rigid connection); ends(i,3)=1 both flexural</span>
+<span class="comment">%                            moments are released (pinned connection); ends(i,3)=2</span>
+<span class="comment">%                            at least one of the flexural moments are partially or fully</span>
+<span class="comment">%                            released (see below for connection stiffness attributes)</span>
+<span class="comment">%                            ends(i,4) = flag to indicate whether or not flexural</span>
+<span class="comment">%                            moments are released at finish node.  ends(i,4)=0 both not</span>
+<span class="comment">%                            released (rigid connection); ends(i,4)=1 both flexural</span>
+<span class="comment">%                            moments are released (pinned connection); ends(i,4)=2</span>
+<span class="comment">%                            at least one of the flexural moments are partially or fully</span>
+<span class="comment">%                            released (see below for connection stiffness attributes)</span>
+<span class="comment">%                            ends(i,5) = flag to indicate the degree of warping</span>
+<span class="comment">%                            restraint at start node.  ends(i,5)=0 warping free;</span>
+<span class="comment">%                            ends(i,5)=1 warping fixed; ends(i,5)=2 warping continuous</span>
+<span class="comment">%                            ends(i,6) = flag to indicate the degree of warping</span>
+<span class="comment">%                            restraint at finish node.  ends(i,6)=0 warping free;</span>
+<span class="comment">%                            ends(i,6)=1 warping fixed; ends(i,6)=2 warping continuous</span>
+<span class="comment">%                            ends(i,7) = rotational spring stiffness at the start</span>
+<span class="comment">%                            node and about element i's local z-z axis.</span>
+<span class="comment">%                            ends(i,8) = rotational spring stiffness at the start</span>
+<span class="comment">%                            node and about element i's local y-y axis.</span>
+<span class="comment">%                            ends(i,9) = rotational spring stiffness at the finish</span>
+<span class="comment">%                            node and about element i's local z-z axis.</span>
+<span class="comment">%                            ends(i,10) = rotational spring stiffness at the finish</span>
+<span class="comment">%                            node and about element i's local y-y axis.</span>
+<span class="comment">%                            ends(i,11) = connection moment capacity Mpz at the start</span>
+<span class="comment">%                            node and about element i's local z-z axis.</span>
+<span class="comment">%                            ends(i,12) = connection moment capacity Mpy at the start</span>
+<span class="comment">%                            node and about element i's local y-y axis.</span>
+<span class="comment">%                            ends(i,13) = connection moment capacity Mpz at the finish</span>
+<span class="comment">%                            node and about element i's local z-z axis.</span>
+<span class="comment">%                            ends(i,14) = connection moment capacity Mpy at the finish</span>
+<span class="comment">%                            node and about element i's local y-y axis.</span>
+<span class="comment">%       A(i)           ==  element i's cross sectional area</span>
+<span class="comment">%       Izz(i)         ==  element i's moment of inertia about its local z-z axis</span>
+<span class="comment">%       Iyy(i)         ==  element i's moment of inertia about its local y-y axis</span>
+<span class="comment">%       J(i)           ==  element i's torsional constant</span>
+<span class="comment">%       Cw(i)          ==  element i's warping constant</span>
+<span class="comment">%       Zzz(i)         ==  element i's plastic section modulus about its local z-z axis</span>
+<span class="comment">%       Zyy(i)         ==  element i's plastic section modulus about its local y-y axis</span>
+<span class="comment">%       Ayy(i)         ==  element i's effective shear area along its local y-y axis</span>
+<span class="comment">%       Azz(i)         ==  element i's effective shear area along its local z-z axis</span>
+<span class="comment">%       E(i)           ==  element i's material elastic modulus, Young's Modulus</span>
+<span class="comment">%       v(i)           ==  element i's material Poisson's ratio</span>
+<span class="comment">%       Fy(i)          ==  element i's material yield strength</span>
+<span class="comment">%       YldSurf(i)     ==  element i's yield surface maximum values</span>
+<span class="comment">%                              YldSurf(i,1) = maximum P/Py value</span>
+<span class="comment">%                              YldSurf(i,2) = maximum Mz/Mpz value</span>
+<span class="comment">%                              YldSurf(i,3) = maximum My/Mpy value</span>
+<span class="comment">%       Wt(i)          ==  element i's material weight density</span>
+<span class="comment">%                          (Assume that gravity is directed in the negative global Y dir)</span>
+<span class="comment">%       webdir(i,1:3)  ==  element i's unit web vector.  This is a unit vector</span>
+<span class="comment">%                          that defines the element's local y-y axis with respect</span>
+<span class="comment">%                          to the global coordinate system.  It is based on the</span>
+<span class="comment">%                          structure's undeformed geometry.</span>
+<span class="comment">%                              webdir(i,1) = x component of element's unit web vector</span>
+<span class="comment">%                              webdir(i,2) = y component of element's unit web vector</span>
+<span class="comment">%                              webdir(i,3) = z component of element's unit web vector</span>
+<span class="comment">%                          NOTE: An element's 3x3 rotation matrix, [g], is constructed</span>
+<span class="comment">%                          as follows: First, calculate a unit vector, x_vect, that</span>
+<span class="comment">%                          describes the element's local x-axis. Second, take the</span>
+<span class="comment">%                          cross product of x_vect and webdir(i,:) to obtain z_vect,</span>
+<span class="comment">%                          i.e. z_vect = cross(x_vect,webdir(i,:)). Third, set z_vect</span>
+<span class="comment">%                          to a unit vector, i.e. z_vect = z_vect/norm(z_vect).</span>
+<span class="comment">%                          Finally, the first row of [g] is x_vect, its second row is</span>
+<span class="comment">%                          webdir(i,:), and its third row is z_vect.</span>
+<span class="comment">%       beta_ang(i)    ==  element i's web rotation angle.  These values are</span>
+<span class="comment">%                          provided for those students who are required to calculate</span>
+<span class="comment">%                          their own unit web vectors (see above).  It is based</span>
+<span class="comment">%                          on the structure's undeformed geometry.</span>
+<span class="comment">%                          Note:  MASTAN2 uses the following convention for</span>
+<span class="comment">%                                 defining a member's default web orientation:</span>
+<span class="comment">%                                 A vector defing the element's local y-axis</span>
+<span class="comment">%                                 with respect to the global coordinate system</span>
+<span class="comment">%                                 will have a positive component in the global</span>
+<span class="comment">%                                 Y direction.  If the element's local x-axis,</span>
+<span class="comment">%                                 its length axis, is aligned with the global Y</span>
+<span class="comment">%                                 axis, then element's local y-axis is aligned</span>
+<span class="comment">%                                 with global negative X axis.  After this initial</span>
+<span class="comment">%                                 orientation, element i may be rotated about</span>
+<span class="comment">%                                 its local x-axis by the amount defined by</span>
+<span class="comment">%                                 its web rotation angle, beta_ang(i).  The</span>
+<span class="comment">%                                 angle is in radians and assumes a right-hand</span>
+<span class="comment">%                                 convention about the local x-axis which runs from</span>
+<span class="comment">%                                 the element's start node to its finish node.</span>
+<span class="comment">%       w(i,1:3)         ==  element i's uniform load which references its</span>
+<span class="comment">%                            local coordinate system</span>
+<span class="comment">%                              w(i,1) = x component of uniform load</span>
+<span class="comment">%                              w(i,2) = y component of uniform load</span>
+<span class="comment">%                              w(i,3) = z component of uniform load</span>
+<span class="comment">%       thermal(i,1:4)   ==  element i's thermal strain effects which reference its</span>
+<span class="comment">%                            local coordinate system</span>
+<span class="comment">%                              thermal(i,1) = coefficient of thermal expansion</span>
+<span class="comment">%                              thermal(i,2) = change in temperature at centroid</span>
+<span class="comment">%                              thermal(i,3) = linear temperature gradient in local y-dir</span>
+<span class="comment">%                                           = (T_up_y - T_btm_y) / depth_y</span>
+<span class="comment">%                              thermal(i,4) = linear temperature gradient in local z-dir</span>
+<span class="comment">%                                           = (T_up_z - T_btm_z) / width_z</span>
+<span class="comment">%       truss            ==  flag to indicate if structure is a truss or not</span>
+<span class="comment">%                              truss = 0   System is not a truss</span>
+<span class="comment">%                              truss = 1   System is a truss</span>
+<span class="comment">%       anatype          ==  flag to indicate which type of analysis is requested</span>
+<span class="comment">%                              anatype = 1  First-Order Elastic</span>
+<span class="comment">%                              anatype = 2  Second-Order Elastic</span>
+<span class="comment">%                              anatype = 3  First-Order Inelastic</span>
+<span class="comment">%                              anatype = 4  Second-Order Inelastic</span>
+<span class="comment">%                              anatype = 5  Elastic Buckling (Eigenvalue)</span>
+<span class="comment">%                              anatype = 6  Inelastic Buckling (Eigenvalue)</span>
+<span class="comment">%</span>
+<span class="comment">%     Local Information:</span>
+<span class="comment">%              &lt; to be defined by the student &gt;</span>
+<span class="comment">%</span>
+<span class="comment">%     Output Information:</span>
+<span class="comment">%       DEFL(i,1:6)      ==  node i's calculated 6 d.o.f. deflections</span>
+<span class="comment">%                              DEFL(i,1) = displacement in X direction</span>
+<span class="comment">%                              DEFL(i,2) = displacement in Y direction</span>
+<span class="comment">%                              DEFL(i,3) = displacement in Z direction</span>
+<span class="comment">%                              DEFL(i,4) = rotation about X direction</span>
+<span class="comment">%                              DEFL(i,5) = rotation about Y direction</span>
+<span class="comment">%                              DEFL(i,6) = rotation about Z direction</span>
+<span class="comment">%       REACT(i,1:6)     ==  reactions for supported node i's 6 d.o.f.</span>
+<span class="comment">%                              REACT(i,1) = force in X direction</span>
+<span class="comment">%                              REACT(i,2) = force in Y direction</span>
+<span class="comment">%                              REACT(i,3) = force in Z direction</span>
+<span class="comment">%                              REACT(i,4) = moment about X direction</span>
+<span class="comment">%                              REACT(i,5) = moment about Y direction</span>
+<span class="comment">%                              REACT(i,6) = moment about Z direction</span>
+<span class="comment">%       ELE_FOR(i,1:1?)  ==  element i's internal forces and moments</span>
+<span class="comment">%                            Note: All values reference the element's local</span>
+<span class="comment">%                                  coordinate system.</span>
+<span class="comment">%                              ELE_FOR(i,1)  = x-force at start node</span>
+<span class="comment">%                              ELE_FOR(i,2)  = y-force at start node</span>
+<span class="comment">%                              ELE_FOR(i,3)  = z-force at start node</span>
+<span class="comment">%                              ELE_FOR(i,4)  = x-moment at start node</span>
+<span class="comment">%                              ELE_FOR(i,5)  = y-moment at start node</span>
+<span class="comment">%                              ELE_FOR(i,6)  = z-moment at start node</span>
+<span class="comment">%                              ELE_FOR(i,7)  = x-force at end node</span>
+<span class="comment">%                              ELE_FOR(i,8)  = y-force at end node</span>
+<span class="comment">%                              ELE_FOR(i,9)  = z-force at end node</span>
+<span class="comment">%                              ELE_FOR(i,10) = x-moment at end node</span>
+<span class="comment">%                              ELE_FOR(i,11) = y-moment at end node</span>
+<span class="comment">%                              ELE_FOR(i,12) = z-moment at end node</span>
+<span class="comment">%                            If you are not programming warping torsion, the ELE_FOR</span>
+<span class="comment">%                            array needs to contain only 12 columns, i.e. ELE_FOR(i,1:12)</span>
+<span class="comment">%                            For those programming warping torsion, the bimoments and</span>
+<span class="comment">%                            rates of twist should be stored as follows.</span>
+<span class="comment">%                              ELE_FOR(i,13) = bimoment at start node</span>
+<span class="comment">%                              ELE_FOR(i,14) = bimoment at end node</span>
+<span class="comment">%                              ELE_FOR(i,15) = rate of twist at start node</span>
+<span class="comment">%                              ELE_FOR(i,16) = rate of twist at end node</span>
+<span class="comment">%       AFLAG            ==  logical flag to indicate if a successful</span>
+<span class="comment">%                            analysis has been completed</span>
+<span class="comment">%                              AFLAG = 1     Successful</span>
+<span class="comment">%                              AFLAG = 0     Unstable Structure</span>
+<span class="comment">%                              AFLAG = inf   No analysis code available</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">%  Start by defining all output arrays to be empty</span>
+<span class="comment">%</span>
+DEFL=[]; REACT=[]; ELE_FOR=[];
+<span class="comment">%</span>
+<span class="comment">% Display each input of the function on a new line</span>
+disp(<span class="string">'Number of nodes'</span>);
+disp(nnodes);
+
+disp(<span class="string">'Coordinates of nodes'</span>);
+disp(coord);
+
+disp(<span class="string">'Concentrated loads'</span>);
+disp(concen);
+
+disp(<span class="string">'Prescribed displacements'</span>);
+disp(fixity);
+
+disp(<span class="string">'Number of elements'</span>);
+disp(nele);
+
+disp(<span class="string">'Element nodal information'</span>);
+disp(ends);
+
+disp(<span class="string">'Cross sectional area'</span>);
+disp(A);
+
+disp(<span class="string">'Moment of inertia about local z axis'</span>);
+disp(Izz);
+
+disp(<span class="string">'Moment of inertia about local y axis'</span>);
+disp(Iyy);
+
+disp(<span class="string">'Torsional constant'</span>);
+disp(J);
+
+disp(<span class="string">'Warping constant'</span>);
+disp(Cw);
+
+disp(<span class="string">'Plastic section modulus about local z axis'</span>);
+disp(Zzz);
+
+disp(<span class="string">'Plastic section modulus about local y axis'</span>);
+disp(Zyy);
+
+disp(<span class="string">'Effective shear area along local y axis'</span>);
+disp(Ayy);
+
+disp(<span class="string">'Effective shear area along local z axis'</span>);
+disp(Azz);
+
+disp(<span class="string">'Elastic modulus'</span>);
+disp(E);
+
+disp(<span class="string">'Poisson''s ratio'</span>);
+disp(v);
+
+disp(<span class="string">'Yield strength'</span>);
+disp(Fy);
+
+disp(<span class="string">'Yield surface maximum values'</span>);
+disp(YldSurf);
+
+disp(<span class="string">'Weight density'</span>);
+disp(Wt);
+
+disp(<span class="string">'Unit web vector'</span>);
+disp(webdir);
+
+disp(<span class="string">'Web rotation angle'</span>);
+disp(beta_ang);
+
+disp(<span class="string">'Uniform loads'</span>);
+disp(w);
+
+disp(<span class="string">'Thermal strain effects'</span>);
+disp(thermal);
+
+disp(<span class="string">'Truss flag'</span>);
+disp(truss);
+
+disp(<span class="string">'Analysis type'</span>);
+disp(anatype);
+
+AFLAG = inf;
+<span class="comment">%</span>
+<span class="comment">%  STUDENT NOTE:</span>
+<span class="comment">%     In order for this routine to become fully active AFLAG</span>
+<span class="comment">%     must be changed.</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%  Student's code starts here...</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">%  Good luck CE Student!!!</span>
+<span class="comment">%</span>
+</pre>
+<pre class="codeoutput">Number of nodes
+</pre>
+<pre class="codeoutput error">Not enough input arguments.
+
+Error in ud_3d1el (line 217)
+disp(nnodes);
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
+	nnodes,coord,concen,fixity,nele,ends,A,Izz,Iyy,J,Cw,IsSym,Ysc,Zsc,Betay,Betaz,Betaw,Zzz,Zyy,Ayy,Azz,...
+	E,v,Fy,YldSurf,Wt,webdir,beta_ang,w,thermal,truss,anatype);
+
+% Code developed by Mrunmayi Mungekar and Devasmit Dutta
+% 
+% UD_3D1EL performs a user defined three-dimensional
+% first-order elastic analysis of a structural system.
+%
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Functions Called
+%              < to be defined by the student >
+%
+%  Dictionary of Variables
+%     Input Information:
+%       nnodes         ==  total number of nodes
+%       coord(i,1:3)   ==  node i's coordinates
+%                            coord(i,1) = X coordinate
+%                            coord(i,2) = Y coordinate
+%                            coord(i,3) = Z coordinate
+%       concen(i,1:6)  ==  concentrated loads for node i's 6 d.o.f.
+%                            concen(i,1) = force in global X direction
+%                            concen(i,2) = force in global Y direction
+%                            concen(i,3) = force in global Z direction
+%                            concen(i,4) = moment about global X axis
+%                            concen(i,5) = moment about global Y axis
+%                            concen(i,6) = moment about global Z axis
+%       fixity(i,1:6)  ==  prescribed displacements for node i's 6 d.o.f.
+%                          Note: A free d.o.f. will have a value of NaN
+%                          and hence, you will find the Matlab function
+%                          isnan very useful.
+%                          Examples: If fixity(15,3) is set to NaN, then node 15's
+%                                      Z-disp component is free;
+%                                    If fixity(2,6) is set to 0.0, then node 2's
+%                                      Z-rotation component is supported;
+%                                    If fixity(5,2) is set to -2.1, then node 5's
+%                                      Y-disp component is supported and defined
+%                                      with a settlement of -2.1 units.
+%                            fixity(i,1) = prescribed disp. in global X direction
+%                            fixity(i,2) = prescribed disp. in global Y direction
+%                            fixity(i,3) = prescribed disp. in global Z direction
+%                            fixity(i,4) = prescribed rotation about global X axis
+%                            fixity(i,5) = prescribed rotation about global Y axis
+%                            fixity(i,6) = prescribed rotation about global Z axis
+%       nele           ==  total number of elements
+%       ends(i,1:14)   ==  element i's nodal information
+%                            ends(i,1) = start node #
+%                            ends(i,2) = finish node #
+%                            ends(i,3) = flag to indicate whether or not flexural
+%                            moments are released at start node.  ends(i,3)=0 both not
+%                            released (rigid connection); ends(i,3)=1 both flexural
+%                            moments are released (pinned connection); ends(i,3)=2
+%                            at least one of the flexural moments are partially or fully
+%                            released (see below for connection stiffness attributes)
+%                            ends(i,4) = flag to indicate whether or not flexural
+%                            moments are released at finish node.  ends(i,4)=0 both not
+%                            released (rigid connection); ends(i,4)=1 both flexural
+%                            moments are released (pinned connection); ends(i,4)=2
+%                            at least one of the flexural moments are partially or fully
+%                            released (see below for connection stiffness attributes)
+%                            ends(i,5) = flag to indicate the degree of warping
+%                            restraint at start node.  ends(i,5)=0 warping free;
+%                            ends(i,5)=1 warping fixed; ends(i,5)=2 warping continuous
+%                            ends(i,6) = flag to indicate the degree of warping
+%                            restraint at finish node.  ends(i,6)=0 warping free;
+%                            ends(i,6)=1 warping fixed; ends(i,6)=2 warping continuous
+%                            ends(i,7) = rotational spring stiffness at the start
+%                            node and about element i's local z-z axis.
+%                            ends(i,8) = rotational spring stiffness at the start
+%                            node and about element i's local y-y axis.
+%                            ends(i,9) = rotational spring stiffness at the finish
+%                            node and about element i's local z-z axis.
+%                            ends(i,10) = rotational spring stiffness at the finish
+%                            node and about element i's local y-y axis.
+%                            ends(i,11) = connection moment capacity Mpz at the start
+%                            node and about element i's local z-z axis.
+%                            ends(i,12) = connection moment capacity Mpy at the start
+%                            node and about element i's local y-y axis.
+%                            ends(i,13) = connection moment capacity Mpz at the finish
+%                            node and about element i's local z-z axis.
+%                            ends(i,14) = connection moment capacity Mpy at the finish
+%                            node and about element i's local y-y axis.
+%       A(i)           ==  element i's cross sectional area
+%       Izz(i)         ==  element i's moment of inertia about its local z-z axis
+%       Iyy(i)         ==  element i's moment of inertia about its local y-y axis
+%       J(i)           ==  element i's torsional constant
+%       Cw(i)          ==  element i's warping constant
+%       Zzz(i)         ==  element i's plastic section modulus about its local z-z axis
+%       Zyy(i)         ==  element i's plastic section modulus about its local y-y axis
+%       Ayy(i)         ==  element i's effective shear area along its local y-y axis
+%       Azz(i)         ==  element i's effective shear area along its local z-z axis
+%       E(i)           ==  element i's material elastic modulus, Young's Modulus
+%       v(i)           ==  element i's material Poisson's ratio
+%       Fy(i)          ==  element i's material yield strength
+%       YldSurf(i)     ==  element i's yield surface maximum values
+%                              YldSurf(i,1) = maximum P/Py value
+%                              YldSurf(i,2) = maximum Mz/Mpz value
+%                              YldSurf(i,3) = maximum My/Mpy value
+%       Wt(i)          ==  element i's material weight density
+%                          (Assume that gravity is directed in the negative global Y dir)
+%       webdir(i,1:3)  ==  element i's unit web vector.  This is a unit vector
+%                          that defines the element's local y-y axis with respect
+%                          to the global coordinate system.  It is based on the
+%                          structure's undeformed geometry.
+%                              webdir(i,1) = x component of element's unit web vector
+%                              webdir(i,2) = y component of element's unit web vector
+%                              webdir(i,3) = z component of element's unit web vector
+%                          NOTE: An element's 3x3 rotation matrix, [g], is constructed
+%                          as follows: First, calculate a unit vector, x_vect, that
+%                          describes the element's local x-axis. Second, take the
+%                          cross product of x_vect and webdir(i,:) to obtain z_vect,
+%                          i.e. z_vect = cross(x_vect,webdir(i,:)). Third, set z_vect
+%                          to a unit vector, i.e. z_vect = z_vect/norm(z_vect).
+%                          Finally, the first row of [g] is x_vect, its second row is
+%                          webdir(i,:), and its third row is z_vect.
+%       beta_ang(i)    ==  element i's web rotation angle.  These values are
+%                          provided for those students who are required to calculate
+%                          their own unit web vectors (see above).  It is based
+%                          on the structure's undeformed geometry.
+%                          Note:  MASTAN2 uses the following convention for
+%                                 defining a member's default web orientation:
+%                                 A vector defing the element's local y-axis
+%                                 with respect to the global coordinate system
+%                                 will have a positive component in the global
+%                                 Y direction.  If the element's local x-axis,
+%                                 its length axis, is aligned with the global Y
+%                                 axis, then element's local y-axis is aligned
+%                                 with global negative X axis.  After this initial
+%                                 orientation, element i may be rotated about
+%                                 its local x-axis by the amount defined by
+%                                 its web rotation angle, beta_ang(i).  The
+%                                 angle is in radians and assumes a right-hand
+%                                 convention about the local x-axis which runs from
+%                                 the element's start node to its finish node.
+%       w(i,1:3)         ==  element i's uniform load which references its
+%                            local coordinate system
+%                              w(i,1) = x component of uniform load
+%                              w(i,2) = y component of uniform load
+%                              w(i,3) = z component of uniform load
+%       thermal(i,1:4)   ==  element i's thermal strain effects which reference its
+%                            local coordinate system
+%                              thermal(i,1) = coefficient of thermal expansion
+%                              thermal(i,2) = change in temperature at centroid
+%                              thermal(i,3) = linear temperature gradient in local y-dir
+%                                           = (T_up_y - T_btm_y) / depth_y
+%                              thermal(i,4) = linear temperature gradient in local z-dir
+%                                           = (T_up_z - T_btm_z) / width_z
+%       truss            ==  flag to indicate if structure is a truss or not
+%                              truss = 0   System is not a truss
+%                              truss = 1   System is a truss
+%       anatype          ==  flag to indicate which type of analysis is requested
+%                              anatype = 1  First-Order Elastic
+%                              anatype = 2  Second-Order Elastic
+%                              anatype = 3  First-Order Inelastic
+%                              anatype = 4  Second-Order Inelastic
+%                              anatype = 5  Elastic Buckling (Eigenvalue)
+%                              anatype = 6  Inelastic Buckling (Eigenvalue)
+%
+%     Local Information:
+%              < to be defined by the student >
+%
+%     Output Information:
+%       DEFL(i,1:6)      ==  node i's calculated 6 d.o.f. deflections
+%                              DEFL(i,1) = displacement in X direction
+%                              DEFL(i,2) = displacement in Y direction
+%                              DEFL(i,3) = displacement in Z direction
+%                              DEFL(i,4) = rotation about X direction
+%                              DEFL(i,5) = rotation about Y direction
+%                              DEFL(i,6) = rotation about Z direction
+%       REACT(i,1:6)     ==  reactions for supported node i's 6 d.o.f.
+%                              REACT(i,1) = force in X direction
+%                              REACT(i,2) = force in Y direction
+%                              REACT(i,3) = force in Z direction
+%                              REACT(i,4) = moment about X direction
+%                              REACT(i,5) = moment about Y direction
+%                              REACT(i,6) = moment about Z direction
+%       ELE_FOR(i,1:1?)  ==  element i's internal forces and moments
+%                            Note: All values reference the element's local
+%                                  coordinate system.
+%                              ELE_FOR(i,1)  = x-force at start node
+%                              ELE_FOR(i,2)  = y-force at start node
+%                              ELE_FOR(i,3)  = z-force at start node
+%                              ELE_FOR(i,4)  = x-moment at start node
+%                              ELE_FOR(i,5)  = y-moment at start node
+%                              ELE_FOR(i,6)  = z-moment at start node
+%                              ELE_FOR(i,7)  = x-force at end node
+%                              ELE_FOR(i,8)  = y-force at end node
+%                              ELE_FOR(i,9)  = z-force at end node
+%                              ELE_FOR(i,10) = x-moment at end node
+%                              ELE_FOR(i,11) = y-moment at end node
+%                              ELE_FOR(i,12) = z-moment at end node
+%                            If you are not programming warping torsion, the ELE_FOR
+%                            array needs to contain only 12 columns, i.e. ELE_FOR(i,1:12)
+%                            For those programming warping torsion, the bimoments and
+%                            rates of twist should be stored as follows.
+%                              ELE_FOR(i,13) = bimoment at start node
+%                              ELE_FOR(i,14) = bimoment at end node
+%                              ELE_FOR(i,15) = rate of twist at start node
+%                              ELE_FOR(i,16) = rate of twist at end node
+%       AFLAG            ==  logical flag to indicate if a successful
+%                            analysis has been completed
+%                              AFLAG = 1     Successful
+%                              AFLAG = 0     Unstable Structure
+%                              AFLAG = inf   No analysis code available
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Start by defining all output arrays to be empty
+%
+DEFL=[]; REACT=[]; ELE_FOR=[];
+%
+% Display each input of the function on a new line
+disp('Number of nodes');
+disp(nnodes);
+
+disp('Coordinates of nodes');
+disp(coord);
+
+disp('Concentrated loads');
+disp(concen);
+
+disp('Prescribed displacements');
+disp(fixity);
+
+disp('Number of elements');
+disp(nele);
+
+disp('Element nodal information');
+disp(ends);
+
+disp('Cross sectional area');
+disp(A);
+
+disp('Moment of inertia about local z axis');
+disp(Izz);
+
+disp('Moment of inertia about local y axis');
+disp(Iyy);
+
+disp('Torsional constant');
+disp(J);
+
+disp('Warping constant');
+disp(Cw);
+
+disp('Plastic section modulus about local z axis');
+disp(Zzz);
+
+disp('Plastic section modulus about local y axis');
+disp(Zyy);
+
+disp('Effective shear area along local y axis');
+disp(Ayy);
+
+disp('Effective shear area along local z axis');
+disp(Azz);
+
+disp('Elastic modulus');
+disp(E);
+
+disp('Poisson''s ratio');
+disp(v);
+
+disp('Yield strength');
+disp(Fy);
+
+disp('Yield surface maximum values');
+disp(YldSurf);
+
+disp('Weight density');
+disp(Wt);
+
+disp('Unit web vector');
+disp(webdir);
+
+disp('Web rotation angle');
+disp(beta_ang);
+
+disp('Uniform loads');
+disp(w);
+
+disp('Thermal strain effects');
+disp(thermal);
+
+disp('Truss flag');
+disp(truss);
+
+disp('Analysis type');
+disp(anatype);
+
+AFLAG = inf;
+%
+%  STUDENT NOTE:
+%     In order for this routine to become fully active AFLAG
+%     must be changed.
+%
+%
+%  Student's code starts here...
+%
+%
+%
+%  Good luck CE Student!!!
+%
+
+##### SOURCE END #####
+-->
+</body>
+</html>
