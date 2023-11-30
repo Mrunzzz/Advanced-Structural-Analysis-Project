@@ -55,4 +55,3 @@ disp(gamma)
 globalk = gamma'*elk*gamma;
 disp('Global Stiffness Matrix')
 disp(globalk)
-

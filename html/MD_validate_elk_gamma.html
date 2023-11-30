@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      -->
+<title>MD_validate_elk_gamma</title>
+<meta name="generator" content="MATLAB 23.2">
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/">
+<meta name="DC.date" content="2023-11-29">
+<meta name="DC.source" content="MD_validate_elk_gamma.m">
+<style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style>
+</head>
+<body>
+<div class="content">
+<pre class="codeinput">
+<span class="comment">% Code developed by Mrunmayi Mungekar and Devasmit Dutta</span>
+<span class="comment">% MD_validate_elk_gamma validates the results from the two functions MD_estiff and MD_etran</span>
+<span class="comment">%  Functions Called</span>
+<span class="comment">%              none</span>
+<span class="comment">%</span>
+<span class="comment">%  Dictionary of Variables</span>
+                <span class="comment">% A = cross-sectional area</span>
+                <span class="comment">% Izz = moment of inertia about local z-axis</span>
+                <span class="comment">% Iyy = moment of inertia about local y-axis</span>
+                <span class="comment">% J = torsional constant</span>
+                <span class="comment">% Ayy = shear area along local y-axis</span>
+                <span class="comment">% Azz = shear area along local z-axis</span>
+                <span class="comment">% v = Poisson's ratio</span>
+                <span class="comment">% L = length of element</span>
+                <span class="comment">% E = Young's modulus</span>
+                <span class="comment">% coordi = coordinates of 1st-node</span>
+                <span class="comment">% coordj = coordinates of 2nd-node</span>
+                <span class="comment">% webdir = element's unit web vector</span>
+                <span class="comment">% gamma = local-to-global transformation matrix</span>
+                <span class="comment">% elk = element stiffness matrix</span>
+                <span class="comment">% globalk = global stiffness matrix</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<span class="comment">% Define material and geometric variables</span>
+
+A = 10;
+Izz = 100;
+Iyy = 20;
+J = 1;
+Ayy = 8;
+Azz = 2;
+v = 0.3;
+L = 120*sqrt(2);
+E = 29e3;
+
+<span class="comment">% Print element stiffness matrix</span>
+
+elk = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L);
+disp(<span class="string">'Element Stiffness Matrix'</span>)
+disp(elk)
+
+coordi = [0;0;0];
+coordj = [120;120;0];
+webdir = [-1/sqrt(2); 1/sqrt(2); 0];
+
+<span class="comment">% Print element transformation matrix</span>
+
+gamma = MD_etran(coordi, coordj, webdir);
+disp(<span class="string">'Element Transformation Matrix'</span>)
+disp(gamma)
+
+<span class="comment">% Print global transformation matrix</span>
+
+globalk = gamma'*elk*gamma;
+disp(<span class="string">'Global Stiffness Matrix'</span>)
+disp(globalk)
+</pre>
+<pre class="codeoutput">Element Stiffness Matrix
+   1.0e+04 *
+
+  Columns 1 through 7
+
+    0.1709         0         0         0         0         0   -0.1709
+         0    0.0007         0         0         0    0.0596         0
+         0         0    0.0001         0   -0.0120         0         0
+         0         0         0    0.0066         0         0         0
+         0         0   -0.0120         0    1.3561         0         0
+         0    0.0596         0         0         0    6.7669         0
+   -0.1709         0         0         0         0         0    0.1709
+         0   -0.0007         0         0         0   -0.0596         0
+         0         0   -0.0001         0   -0.0120         0         0
+         0         0         0   -0.0066         0         0         0
+         0         0   -0.0120         0    0.6725         0         0
+         0    0.0596         0         0         0    3.3492         0
+
+  Columns 8 through 12
+
+         0         0         0         0         0
+   -0.0007         0         0         0    0.0596
+         0   -0.0001         0   -0.0120         0
+         0         0   -0.0066         0         0
+         0   -0.0120         0    0.6725         0
+   -0.0596         0         0         0    3.3492
+         0         0         0         0         0
+    0.0007         0         0         0   -0.0596
+         0    0.0001         0   -0.0120         0
+         0         0    0.0066         0         0
+         0   -0.0120         0    1.3561         0
+   -0.0596         0         0         0    6.7669
+
+Element Transformation Matrix
+  Columns 1 through 7
+
+    0.7071    0.7071    0.0000         0         0         0         0
+   -0.7071    0.7071    0.0000         0         0         0         0
+         0   -0.0000    1.0000         0         0         0         0
+         0         0         0    0.7071    0.7071    0.0000         0
+         0         0         0   -0.7071    0.7071    0.0000         0
+         0         0         0         0   -0.0000    1.0000         0
+         0         0         0         0         0         0    0.7071
+         0         0         0         0         0         0   -0.7071
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+         0         0         0         0         0         0         0
+
+  Columns 8 through 12
+
+         0         0         0         0         0
+         0         0         0         0         0
+         0         0         0         0         0
+         0         0         0         0         0
+         0         0         0         0         0
+         0         0         0         0         0
+    0.7071    0.0000         0         0         0
+    0.7071    0.0000         0         0         0
+   -0.0000    1.0000         0         0         0
+         0         0    0.7071    0.7071    0.0000
+         0         0   -0.7071    0.7071    0.0000
+         0         0         0   -0.0000    1.0000
+
+Global Stiffness Matrix
+   1.0e+04 *
+
+  Columns 1 through 7
+
+    0.0858    0.0851    0.0000         0    0.0000   -0.0422   -0.0858
+    0.0851    0.0858    0.0000   -0.0000   -0.0000    0.0422   -0.0851
+    0.0000    0.0000    0.0001    0.0085   -0.0085    0.0000   -0.0000
+         0   -0.0000    0.0085    0.6813   -0.6748   -0.0000         0
+    0.0000   -0.0000   -0.0085   -0.6748    0.6813   -0.0000   -0.0000
+   -0.0422    0.0422    0.0000   -0.0000   -0.0000    6.7669    0.0422
+   -0.0858   -0.0851   -0.0000         0   -0.0000    0.0422    0.0858
+   -0.0851   -0.0858   -0.0000   -0.0000    0.0000   -0.0422    0.0851
+   -0.0000   -0.0000   -0.0001    0.0085   -0.0085   -0.0000    0.0000
+         0   -0.0000    0.0085    0.3330   -0.3396   -0.0000         0
+    0.0000   -0.0000   -0.0085   -0.3396    0.3330   -0.0000   -0.0000
+   -0.0422    0.0422    0.0000   -0.0000   -0.0000    3.3492    0.0422
+
+  Columns 8 through 12
+
+   -0.0851   -0.0000         0    0.0000   -0.0422
+   -0.0858   -0.0000   -0.0000   -0.0000    0.0422
+   -0.0000   -0.0001    0.0085   -0.0085    0.0000
+   -0.0000    0.0085    0.3330   -0.3396   -0.0000
+    0.0000   -0.0085   -0.3396    0.3330   -0.0000
+   -0.0422   -0.0000   -0.0000   -0.0000    3.3492
+    0.0851    0.0000         0   -0.0000    0.0422
+    0.0858    0.0000   -0.0000    0.0000   -0.0422
+    0.0000    0.0001    0.0085   -0.0085   -0.0000
+   -0.0000    0.0085    0.6813   -0.6748   -0.0000
+    0.0000   -0.0085   -0.6748    0.6813   -0.0000
+   -0.0422   -0.0000   -0.0000   -0.0000    6.7669
+
+</pre>
+<p class="footer">
+<br>
+<a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023b</a>
+<br>
+</p>
+</div>
+<!--
+##### SOURCE BEGIN #####
+% Code developed by Mrunmayi Mungekar and Devasmit Dutta
+% MD_validate_elk_gamma validates the results from the two functions MD_estiff and MD_etran
+%  Functions Called
+%              none
+%
+%  Dictionary of Variables
+                % A = cross-sectional area
+                % Izz = moment of inertia about local z-axis
+                % Iyy = moment of inertia about local y-axis
+                % J = torsional constant
+                % Ayy = shear area along local y-axis
+                % Azz = shear area along local z-axis
+                % v = Poisson's ratio
+                % L = length of element
+                % E = Young's modulus
+                % coordi = coordinates of 1st-node
+                % coordj = coordinates of 2nd-node
+                % webdir = element's unit web vector
+                % gamma = local-to-global transformation matrix
+                % elk = element stiffness matrix
+                % globalk = global stiffness matrix
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Define material and geometric variables
+
+A = 10;
+Izz = 100;
+Iyy = 20;
+J = 1;
+Ayy = 8;
+Azz = 2;
+v = 0.3;
+L = 120*sqrt(2);
+E = 29e3;
+
+% Print element stiffness matrix
+
+elk = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L);
+disp('Element Stiffness Matrix')
+disp(elk)
+
+coordi = [0;0;0];
+coordj = [120;120;0];
+webdir = [-1/sqrt(2); 1/sqrt(2); 0];
+
+% Print element transformation matrix
+
+gamma = MD_etran(coordi, coordj, webdir);
+disp('Element Transformation Matrix')
+disp(gamma)
+
+% Print global transformation matrix
+
+globalk = gamma'*elk*gamma;
+disp('Global Stiffness Matrix')
+disp(globalk)
+
+
+##### SOURCE END #####
+-->
+</body>
+</html>
