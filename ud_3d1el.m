@@ -253,17 +253,19 @@ end
 disp('member id');
 disp(memb_id);
 
-memb_load_dof = zeros(nele,12);
+[d1, d2] = size(concen);
 
-for i=1:nele
-    member_node = ends(i,:);
-    start_node = member_node(1);
-    end_node = member_node(2);
-    memb_load_dof(i,:) = cat(2, concen(start_node,:), concen(end_node,:));
+load_dof = zeros(d2,d1);
+
+for i=1:d2
+    for j=1:d1
+      load_dof(i,j) = concen(j,i);
+    end
 end
 
-disp('member_load_dof');
-disp(memb_load_dof);
+load_dof = reshape(load_dof,nnodes*6,1);
+disp('load_dof');
+disp(load_dof);
 
 AFLAG = inf;
 %
