@@ -211,8 +211,7 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %  Start by defining all output arrays to be empty
 %
 DEFL=[]; REACT=[]; ELE_FOR=[];
-%
-% Display each input of the function on a new line
+
 disp('Number of nodes');
 disp(nnodes);
 
@@ -222,74 +221,37 @@ disp(coord);
 disp('Concentrated loads');
 disp(concen);
 
-disp('Prescribed displacements');
-disp(fixity);
-
 disp('Number of elements');
 disp(nele);
 
 disp('Element nodal information');
 disp(ends);
 
-disp('Cross sectional area');
-disp(A);
-
-disp('Moment of inertia about local z axis');
-disp(Izz);
-
-disp('Moment of inertia about local y axis');
-disp(Iyy);
-
-disp('Torsional constant');
-disp(J);
-
-disp('Warping constant');
-disp(Cw);
-
-disp('Plastic section modulus about local z axis');
-disp(Zzz);
-
-disp('Plastic section modulus about local y axis');
-disp(Zyy);
-
-disp('Effective shear area along local y axis');
-disp(Ayy);
-
-disp('Effective shear area along local z axis');
-disp(Azz);
-
-disp('Elastic modulus');
-disp(E);
-
-disp('Poisson''s ratio');
-disp(v);
-
-disp('Yield strength');
-disp(Fy);
-
-disp('Yield surface maximum values');
-disp(YldSurf);
-
-disp('Weight density');
-disp(Wt);
-
 disp('Unit web vector');
 disp(webdir);
 
-disp('Web rotation angle');
-disp(beta_ang);
+nnodesDOF = zeros(nnodes,6);
 
-disp('Uniform loads');
-disp(w);
+for i =1:nnodes
+    for j =1:6
+        nnodesDOF(i,j) = (i - 1)*6 + j;
+    end
+end
 
-disp('Thermal strain effects');
-disp(thermal);
+memb_id = zeros(nele,12);
 
-disp('Truss flag');
-disp(truss);
+disp('nnodesDOF');
+disp(nnodesDOF);
 
-disp('Analysis type');
-disp(anatype);
+for i=1:nele
+    member_node = ends(i,:);
+    start_node = member_node(1);
+    end_node = member_node(2);
+    memb_id(i,:) = cat(2, nnodesDOF(start_node,:), nnodesDOF(end_node,:));
+end
+
+disp('member id');
+disp(memb_id);
 
 AFLAG = inf;
 %
