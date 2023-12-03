@@ -253,6 +253,18 @@ end
 disp('member id');
 disp(memb_id);
 
+memb_load_dof = zeros(nele,12);
+
+for i=1:nele
+    member_node = ends(i,:);
+    start_node = member_node(1);
+    end_node = member_node(2);
+    memb_load_dof(i,:) = cat(2, concen(start_node,:), concen(end_node,:));
+end
+
+disp('member_load_dof');
+disp(memb_load_dof);
+
 AFLAG = inf;
 %
 %  STUDENT NOTE:
