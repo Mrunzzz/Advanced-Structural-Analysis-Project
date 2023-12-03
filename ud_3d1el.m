@@ -212,58 +212,13 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %
 DEFL=[]; REACT=[]; ELE_FOR=[];
 
-disp('Number of nodes');
-disp(nnodes);
-
-disp('Coordinates of nodes');
-disp(coord);
-
-disp('Concentrated loads');
-disp(concen);
-
-disp('Number of elements');
-disp(nele);
-
-disp('Element nodal information');
-disp(ends);
-
-disp('Unit web vector');
-disp(webdir);
-
-nnodesDOF = zeros(nnodes,6);
-
-for i =1:nnodes
-    for j =1:6
-        nnodesDOF(i,j) = (i - 1)*6 + j;
-    end
-end
-
-memb_id = zeros(nele,12);
-
-disp('nnodesDOF');
-disp(nnodesDOF);
-
-for i=1:nele
-    member_node = ends(i,:);
-    start_node = member_node(1);
-    end_node = member_node(2);
-    memb_id(i,:) = cat(2, nnodesDOF(start_node,:), nnodesDOF(end_node,:));
-end
+memb_id = MD_member_id(nnodes, nele, ends);
 
 disp('member id');
 disp(memb_id);
 
-[d1, d2] = size(concen);
+load_dof = MD_load_dof(concen, nnodes);
 
-load_dof = zeros(d2,d1);
-
-for i=1:d2
-    for j=1:d1
-      load_dof(i,j) = concen(j,i);
-    end
-end
-
-load_dof = reshape(load_dof,nnodes*6,1);
 disp('load_dof');
 disp(load_dof);
 
