@@ -1,7 +1,7 @@
 function load_dof = MD_load_dof(concen, nnodes)
 % Code developed by Mrunmayi Mungekar and Devasmit Dutta
 %
-% MD_member_id.m computes the id's associated to each degree of freedom for every element
+% MD_load_dof.m computes the final applied load vector
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
