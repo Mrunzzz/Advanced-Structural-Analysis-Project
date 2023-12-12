@@ -217,10 +217,77 @@ memb_id = MD_member_id(nnodes, nele, ends);
 disp('member id');
 disp(memb_id);
 
-load_dof = MD_load_dof(concen, nnodes);
+concen_applied_load_dof = MD_concen_load_dof(concen, nnodes);
 
-disp('load_dof');
-disp(load_dof);
+FEF = zeros(6*nnodes,1);
+
+for i =1:nele
+   start_node = ends(i,1);
+   end_node = ends(i,2); 
+   start_coord = coord(start_node,:);
+   end_coord = coord(end_node,:);
+   L = norm(end_coord - start_coord);
+   memberlocalFEF = MD_computeMemberFEFs(w(i,:),L);
+   gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+   memberglobalFEF = gamma'*memberlocalFEF;
+   FEF(memb_id(i,:),1) = memberglobalFEF + FEF(memb_id(i,:),1);
+end
+
+disp('concen_applied_load_dof');
+disp(concen_applied_load_dof);
+
+disp('FEF');
+disp(FEF);
+
+D = fixity';
+D = D(:);
+freeDOF = find(isnan(D));
+supportDOF = D == 0;
+displacedDOF = find(D~=0 & ~isnan(D));
+
+kstructureglobal = zeros(6*nnodes,6*nnodes);
+for i =1:nele
+   start_node = ends(i,1);
+   end_node = ends(i,2); 
+   start_coord = coord(start_node,:);
+   end_coord = coord(end_node,:);
+   L = norm(end_coord - start_coord);
+
+   kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L)
+   gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+   kele_global = gamma'*kele_local*gamma;
+   kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+
+end
+
+Kff = kstructureglobal(freeDOF,freeDOF);
+Kfn = kstructureglobal(freeDOF,displacedDOF);
+Knf = kstructureglobal(displacedDOF,freeDOF);
+Ksf = kstructureglobal(supportDOF,freeDOF);
+Ksn = kstructureglobal(supportDOF,displacedDOF);
+Knn = kstructureglobal(displacedDOF,displacedDOF);
+
+Pf = concen_applied_load_dof(freeDOF);
+FEFf = FEF(freeDOF);
+FEFs = FEF(supportDOF);
+FEFn = FEF(displacedDOF);
+Delta_n = D(displacedDOF);
+Delta_f = (Kff)\(Pf - FEFf - Kfn*Delta_n);
+
+disp('Delta_f');
+disp(Delta_f);
+
+Rs = FEFs + Ksf*Delta_f + Ksn*Delta_n;
+Rn = FEFn + Knf*Delta_f + Knn*Delta_n;
+
+disp('Rs');
+disp(Rs);
+
+disp('Rn');
+disp(Rn);
+
+disp('back-calculating freeDOF load')
+disp(FEFf + Kff*Delta_f + Kfn*Delta_n)
 
 AFLAG = inf;
 %
