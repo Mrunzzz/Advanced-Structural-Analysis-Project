@@ -1,4 +1,4 @@
-function load_dof = MD_load_dof(concen, nnodes)
+function concen_applied_load_dof = MD_load_dof(concen, nnodes)
 % Code developed by Mrunmayi Mungekar and Devasmit Dutta
 %
 % MD_load_dof.m computes the final applied load vector
@@ -23,4 +23,4 @@ load_dof = concen';
 
 % Stacking vertically the load data at each node along the rows for obtaining the final applied load vector
 
-load_dof = reshape(load_dof,nnodes*6,1);
+concen_applied_load_dof = reshape(load_dof,nnodes*6,1);
