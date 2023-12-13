@@ -253,7 +253,7 @@ for i =1:nele
    end_coord = coord(end_node,:);
    L = norm(end_coord - start_coord);
 
-   kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L)
+   kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
    kele_global = gamma'*kele_local*gamma;
    kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
@@ -286,8 +286,8 @@ disp(Rs);
 disp('Rn');
 disp(Rn);
 
-disp('back-calculating freeDOF load')
-disp(FEFf + Kff*Delta_f + Kfn*Delta_n)
+disp('back-calculating freeDOF load');
+disp(FEFf + Kff*Delta_f + Kfn*Delta_n);
 
 AFLAG = inf;
 %
