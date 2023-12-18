@@ -275,13 +275,113 @@ Delta_n = D(displacedDOF);
 Delta_f = (Kff)\(Pf - FEFf - Kfn*Delta_n);
 
 disp('Delta_f');
-disp(Delta_f);
+disp(vpa(Delta_f,6));
+
+D_all = zeros(nnodes*6,1); % Initiate with size
+D_all(displacedDOF) = Delta_n;
+D_all(freeDOF) = Delta_f;
+
+for i =1:nele
+   start_node = ends(i,1);
+   end_node = ends(i,2); 
+   start_coord = coord(start_node,:);
+   end_coord = coord(end_node,:);
+   L = norm(end_coord - start_coord);
+
+   kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
+   gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+   
+   Dele_global = D_all(memb_id(i,:));
+   Dele_local = gamma*Dele_global;
+
+   memberlocalFEF = MD_computeMemberFEFs(w(i,:),L);
+
+   localMemberForces = kele_local*Dele_local + memberlocalFEF;
+
+   ELE_FOR(i,:) = localMemberForces';
+end
+
+% internal_forces_variation = zeros(nele,6);
+syms("internal_forces_variation", [nele,6]);
+for i =1:nele
+   start_node = ends(i,1);
+   end_node = ends(i,2); 
+   start_coord = coord(start_node,:);
+   end_coord = coord(end_node,:);
+   L = norm(end_coord - start_coord);
+
+   syms x;
+   internal_forces_variation(i,1:3) = -ELE_FOR(i,1:3) - w(i,1:3)*x;
+   internal_forces_variation(i,4) = - ELE_FOR(i,4);
+   internal_forces_variation(i,5) = - ELE_FOR(i,5) + ELE_FOR(i,3)*x + w(i,3)*x^2/2;
+   internal_forces_variation(i,6) = - ELE_FOR(i,6) + ELE_FOR(i,2)*x + w(i,2)*x^2/2;
+
+   % figure(i+1);
+   % subplot(2,3,1);
+   % fplot(internal_forces_variation(i,1),[0,L]);
+   % val = max(subs(internal_forces_variation(i,1),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('P variation');
+   % 
+   % subplot(2,3,2);
+   % fplot(internal_forces_variation(i,2),[0,L]);
+   % val = max(subs(internal_forces_variation(i,2),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('Vy variation');
+   % 
+   % subplot(2,3,3);
+   % fplot(internal_forces_variation(i,3),[0,L]);
+   % val = max(subs(internal_forces_variation(i,3),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('Vz variation');
+   % 
+   % subplot(2,3,4);
+   % fplot(internal_forces_variation(i,4),[0,L]);
+   % val = max(subs(internal_forces_variation(i,4),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('T variation');
+   % 
+   % subplot(2,3,5);
+   % fplot(internal_forces_variation(i,5),[0,L]);
+   % val = max(subs(internal_forces_variation(i,5),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('My variation');
+   % 
+   % subplot(2,3,6);
+   % fplot(internal_forces_variation(i,6),[0,L]);
+   % val = max(subs(internal_forces_variation(i,6),linspace(0,L,100))); 
+   % if( val<1 && val>-1)
+   %     ylim([-1,1]); 
+   % end
+   % title('Mz variation');
+   % 
+   % sgtitle("Member "+i+" internal forces variation");
+   
+
+
+end
+
+disp('Member forces variation');
+disp(vpa(internal_forces_variation,6));
+
+disp('Member forces');
+disp(vpa(ELE_FOR,6));
 
 Rs = FEFs + Ksf*Delta_f + Ksn*Delta_n;
 Rn = FEFn + Knf*Delta_f + Knn*Delta_n;
 
 disp('Rs');
-disp(Rs);
+disp(vpa(Rs,6));
 
 disp('Rn');
 disp(Rn);
