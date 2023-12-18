@@ -315,9 +315,10 @@ for i =1:nele
    localMemberForces = kele_local*Dele_local + memberlocalFEF;
 
    ELE_FOR(i,:) = localMemberForces';
+
 end
 
-% internal_forces_variation = zeros(nele,6);
+
 syms("internal_forces_variation", [nele,6]);
 for i =1:nele
    start_node = ends(i,1);
@@ -327,7 +328,7 @@ for i =1:nele
    L = norm(end_coord - start_coord);
 
    syms x;
-   internal_forces_variation(i,1:3) = -ELE_FOR(i,1:3) - w(i,1:3)*x;
+   internal_forces_variation(i,1:3) = - ELE_FOR(i,1:3) - w(i,1:3)*x;
    internal_forces_variation(i,4) = - ELE_FOR(i,4);
    internal_forces_variation(i,5) = - ELE_FOR(i,5) + ELE_FOR(i,3)*x + w(i,3)*x^2/2;
    internal_forces_variation(i,6) = - ELE_FOR(i,6) + ELE_FOR(i,2)*x + w(i,2)*x^2/2;
