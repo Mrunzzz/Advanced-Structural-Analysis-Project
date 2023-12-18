@@ -36,6 +36,13 @@ function [elk] = MD_estiff (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
 
 % Consolidating the geometric and material properties
 
+if(Izz == 0)
+    Izz = Iyy;
+elseif(Iyy == 0)
+    Iyy = Izz;
+elseif(J == 0)
+    J = (Izz + Iyy)/10;
+end
 G = E / (2 + 2 * v);
 
 elk_temp = zeros(12, 12);
