@@ -253,11 +253,27 @@ for i =1:nele
    end_coord = coord(end_node,:);
    L = norm(end_coord - start_coord);
 
-   kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-   gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-   kele_global = gamma'*kele_local*gamma;
-   kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-
+   if ends(i,3) == 0 && ends(i,4) == 0
+      kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
+      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+      kele_global = gamma'*kele_local*gamma;
+      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+   elseif ends(i,3) == 1 && ends(i,4) ~= 0
+      kele_local = MD_estiff_1stnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
+      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+      kele_global = gamma'*kele_local*gamma;
+      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+   elseif ends(i,3) ~= 0 && ends(i,4) ==1
+      kele_local = MD_estiff_2ndnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
+      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+      kele_global = gamma'*kele_local*gamma;
+      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+   % elseif ends(i,3) == 1 && ends(i,4) == 1
+   %    kele_local = MD_estiff_bothnode_MyMz_release(A(i), E(i), L);
+   %    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+   %    kele_global = gamma'*kele_local*gamma;
+   %    kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+   end
 end
 
 Kff = kstructureglobal(freeDOF,freeDOF);
