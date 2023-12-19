@@ -1,7 +1,7 @@
 function [elk] = MD_estiff_2ndnode_MyMz_release (A, Izz, Iyy, J, Ayy, Azz, E, v, L)
 % Code developed by Mrunmayi Mungekar and Devasmit Dutta
 % 
-% MD_estiff.m computes the element stiffness matrix for a given element
+% MD_estiff.m computes the element stiffness matrix for a given element with finish node flexurally released
 %
 
 %
