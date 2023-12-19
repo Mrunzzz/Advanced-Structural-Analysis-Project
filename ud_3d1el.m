@@ -320,7 +320,7 @@ for i =1:nele
    end_node = ends(i,2); 
    start_coord = coord(start_node,:);
    end_coord = coord(end_node,:);
-   L = norm(end_coord - start_coord);
+   L = norm(end_coord - start_coord)
 
    if ends(i,3) == 0 && ends(i,4) == 0
       kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
