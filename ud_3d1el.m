@@ -12,8 +12,46 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Functions Called
-%              < to be defined by the student >
+%              List of all functions called within this file and their purpose:
+%                  MD_member_id - returns a matrix that lists the degree of freedom
+%                                 for each element
+%                  MD_concen_load_dof - returns a matrix that lists the concentrated
+%                                       load for each degree of freedom
+%                  MD_computeMemberFEFs - returns a vector of member forces and
+%                                         moments for a member with no end flexure
+%                                         releases
+%                  MD_computeMemberFEFs_1stnode_MyMz_release - returns a vector of 
+%                                         member forces and moments for a member with
+%                                         a flexure release at the start node
+%                  MD_computeMemberFEFs_2ndnode_MyMz_release - returns a vector of
+%                                         member forces and moments for a member with
+%                                         a flexure release at the finish node
+%                  MD_computeMemberFEFs_bothnode_MyMz_release - returns a vector of
+%                                         member forces and moments for a member with
+%                                         flexure releases at both ends
+%                  MD_estiff - returns a member's local stiffness matrix for a
+%                              member with no end flexure releases
+%                  MD_estiff_1stnode_MyMz_release - returns a member's local stiffness
+%                              matrix for a member with a flexure release at the start
+%                              node
+%                  MD_estiff_2ndnode_MyMz_release - returns a member's local stiffness
+%                              matrix for a member with a flexure release at the finish
+%                              node
+%                  MD_estiff_bothnode_MyMz_release - returns a member's local stiffness
+%                              matrix for a member with flexure releases at both ends
+%                  MD_etran - returns a member's local to global transformation matrix
+%                  MD_estiff - returns a member's local stiffness matrix for a
+%                              member with no end flexure releases
+%                  MD_estiff_1stnode_MyMz_release - returns a member's local stiffness
+%                              matrix for a member with a flexure release at the start
+%                              node
+%                  MD_estiff_2ndnode_MyMz_release - returns a member's local stiffness
+   %                              matrix for a member with a flexure release at the finish
+   %                              node
+%                  MD_estiff_bothnode_MyMz_release - returns a member's local stiffness
+   %                              matrix for a member with flexure releases at both ends
 %
+
 %  Dictionary of Variables
 %     Input Information:
 %       nnodes         ==  total number of nodes
@@ -212,13 +250,16 @@ function [DEFL,REACT,ELE_FOR,AFLAG] = ud_3d1el(...
 %
 DEFL=[]; REACT=[]; ELE_FOR=[];
 
+% Create array that list degree of freedom for each element
 memb_id = MD_member_id(nnodes, nele, ends);
 
 disp('member id');
 disp(memb_id);
 
+% Create array that list concentrated load for degree of freedom
 concen_applied_load_dof = MD_concen_load_dof(concen, nnodes);
 
+% Create array that list member forces for each element
 FEF = zeros(6*nnodes,1);
 
 for i =1:nele
@@ -228,6 +269,7 @@ for i =1:nele
    end_coord = coord(end_node,:);
    L = norm(end_coord - start_coord);
    
+   % Check for end flexure release condition and use appropriate function for local member forces
    if ends(i,3) == 0 && ends(i,4) == 0
       memberlocalFEF = MD_computeMemberFEFs(w(i,:),L);
 
@@ -241,6 +283,7 @@ for i =1:nele
        memberlocalFEF = MD_computeMemberFEFs_bothnode_MyMz_release(w(i,:),L);
    end
    
+   % Transform local member forces to global member forces
    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
    memberglobalFEF = gamma'*memberlocalFEF;
    FEF(memb_id(i,:),1) = memberglobalFEF + FEF(memb_id(i,:),1);
@@ -254,12 +297,14 @@ disp(concen_applied_load_dof);
 disp('FEF');
 disp(FEF);
 
+% Initiate deflection vector for free DOFs
 D = fixity';
 D = D(:);
 freeDOF = find(isnan(D));
 supportDOF = D == 0;
 displacedDOF = find(D~=0 & ~isnan(D));
 
+% Create global stiffness matrix
 kstructureglobal = zeros(6*nnodes,6*nnodes);
 for i =1:nele
    start_node = ends(i,1);
@@ -268,32 +313,28 @@ for i =1:nele
    end_coord = coord(end_node,:);
    L = norm(end_coord - start_coord);
 
+   % Check for end flexure release condition and use appropriate function for local member stiffness, convert each to global
    if ends(i,3) == 0 && ends(i,4) == 0
       kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
 
    elseif ends(i,3) == 1 && ends(i,4) == 0
       kele_local = MD_estiff_1stnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-
+      
    elseif ends(i,3) == 0 && ends(i,4) == 1
       kele_local = MD_estiff_2ndnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-
+      
    elseif ends(i,3) == 1 && ends(i,4) == 1
       kele_local = MD_estiff_bothnode_MyMz_release(A(i), E(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
    end
+
+   % Transform local member stiffness to global member stiffness
+   gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+   kele_global = gamma'*kele_local*gamma;
+   kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+
 end
 
+% Separate global stiffness matrix into free, support and displaced DOF blocks
 Kff = kstructureglobal(freeDOF,freeDOF);
 Kfn = kstructureglobal(freeDOF,displacedDOF);
 Knf = kstructureglobal(displacedDOF,freeDOF);
@@ -301,6 +342,7 @@ Ksf = kstructureglobal(supportDOF,freeDOF);
 Ksn = kstructureglobal(supportDOF,displacedDOF);
 Knn = kstructureglobal(displacedDOF,displacedDOF);
 
+% Solve for free DOF deflections
 Pf = concen_applied_load_dof(freeDOF);
 FEFf = FEF(freeDOF);
 FEFs = FEF(supportDOF);
@@ -315,42 +357,36 @@ D_all = zeros(nnodes*6,1); % Initiate with size
 D_all(displacedDOF) = Delta_n;
 D_all(freeDOF) = Delta_f;
 
+% Populate start and end internal forces for each element
 for i =1:nele
    start_node = ends(i,1);
    end_node = ends(i,2); 
    start_coord = coord(start_node,:);
    end_coord = coord(end_node,:);
-   L = norm(end_coord - start_coord)
+   L = norm(end_coord - start_coord);
 
+   % Check for end flexure release condition and use appropriate function for local member stiffness
    if ends(i,3) == 0 && ends(i,4) == 0
       kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
 
    elseif ends(i,3) == 1 && ends(i,4) == 0
       kele_local = MD_estiff_1stnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-
+   
    elseif ends(i,3) == 0 && ends(i,4) == 1
       kele_local = MD_estiff_2ndnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-
+      
    elseif ends(i,3) == 1 && ends(i,4) == 1
       kele_local = MD_estiff_bothnode_MyMz_release(A(i), E(i), L);
-      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-      kele_global = gamma'*kele_local*gamma;
-      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
    end
+
+   % Get transformation matrix
    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
    
+   % Get local DOF displacement
    Dele_global = D_all(memb_id(i,:));
    Dele_local = gamma*Dele_global;
 
+   % Check for end flexure release condition and use appropriate function for local member forces
    if ends(i,3) == 0 && ends(i,4) == 0
       memberlocalFEF = MD_computeMemberFEFs(w(i,:),L);
 
@@ -366,19 +402,23 @@ for i =1:nele
 
    localMemberForces = kele_local*Dele_local + memberlocalFEF;
 
+   % Populate start and end internal forces for each element
    ELE_FOR(i,:) = localMemberForces';
 
 end
 
-
+% Create a matrix of internal forces variation along the length of each member as a function of local x coordinate
 syms("internal_forces_variation", [nele,6]);
 for i =1:nele
 
+   % Compute the force variation based on forces of start node
    syms x;
    internal_forces_variation(i,1:3) = - ELE_FOR(i,1:3) - w(i,1:3)*x;
    internal_forces_variation(i,4) = - ELE_FOR(i,4);
    internal_forces_variation(i,5) = - ELE_FOR(i,5) + ELE_FOR(i,3)*x + w(i,3)*x^2/2;
    internal_forces_variation(i,6) = - ELE_FOR(i,6) + ELE_FOR(i,2)*x + w(i,2)*x^2/2;
+
+   % Plot graphs if necessary
 
    % figure(i+1);
    % subplot(2,3,1);
@@ -441,6 +481,7 @@ disp(vpa(internal_forces_variation,6));
 disp('Member forces');
 disp(vpa(ELE_FOR,6));
 
+% Compute the reactions at the supports and prescribed displacement DOFs
 Rs = FEFs + Ksf*Delta_f + Ksn*Delta_n;
 Rn = FEFn + Knf*Delta_f + Knn*Delta_n;
 
