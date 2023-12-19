@@ -1,9 +1,7 @@
 function memberlocalFEF = MD_computeMemberFEFs_bothnode_MyMz_release(w, L)
 % Code developed by Mrunmayi Mungekar and Devasmit Dutta
 % 
-% MD_computeMemberFEFs.m computes the element stiffness matrix for a given element
-%
-
+% MD_computeMemberFEFs.m computes the element stiffness matrix for a given element with both nodes released
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

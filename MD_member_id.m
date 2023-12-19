@@ -6,7 +6,7 @@ function memb_id = MD_member_id(nnodes, nele, ends)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Functions Called
-%              none
+%              None
 % Dictionary of variables 
 % Input information
                 % nnodes  = total number of nodes
