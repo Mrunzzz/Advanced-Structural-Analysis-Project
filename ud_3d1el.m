@@ -229,13 +229,16 @@ for i =1:nele
    L = norm(end_coord - start_coord);
    
    if ends(i,3) == 0 && ends(i,4) == 0
-       'hellofirst1'
       memberlocalFEF = MD_computeMemberFEFs(w(i,:),L);
+
    elseif ends(i,3) == 1 && ends(i,4) == 0
-        'hellofirst2'
        memberlocalFEF = MD_computeMemberFEFs_1stnode_MyMz_release(w(i,:),L);
-   elseif ends(i,3) == 0 && ends(i,4) ==1
+
+   elseif ends(i,3) == 0 && ends(i,4) == 1
        memberlocalFEF = MD_computeMemberFEFs_2ndnode_MyMz_release(w(i,:),L);
+       
+   elseif ends(i,3) == 1 && ends(i,4) == 1
+       memberlocalFEF = MD_computeMemberFEFs_bothnode_MyMz_release(w(i,:),L);
    end
    
    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
@@ -266,28 +269,28 @@ for i =1:nele
    L = norm(end_coord - start_coord);
 
    if ends(i,3) == 0 && ends(i,4) == 0
-       'hello1'
       kele_local = MD_estiff(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
       gamma = MD_etran(start_coord,end_coord,webdir(i,:));
       kele_global = gamma'*kele_local*gamma;
       kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+
    elseif ends(i,3) == 1 && ends(i,4) == 0
-       "hello2"
       kele_local = MD_estiff_1stnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
       gamma = MD_etran(start_coord,end_coord,webdir(i,:));
       kele_global = gamma'*kele_local*gamma;
       kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-   elseif ends(i,3) == 0 && ends(i,4) ==1
-       "hello3"
+
+   elseif ends(i,3) == 0 && ends(i,4) == 1
       kele_local = MD_estiff_2ndnode_MyMz_release(A(i), Izz(i), Iyy(i), J(i), Ayy(i), Azz(i), E(i), v(i), L);
       gamma = MD_etran(start_coord,end_coord,webdir(i,:));
       kele_global = gamma'*kele_local*gamma;
       kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
-   % elseif ends(i,3) == 1 && ends(i,4) == 1
-   %    kele_local = MD_estiff_bothnode_MyMz_release(A(i), E(i), L);
-   %    gamma = MD_etran(start_coord,end_coord,webdir(i,:));
-   %    kele_global = gamma'*kele_local*gamma;
-   %    kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
+
+   elseif ends(i,3) == 1 && ends(i,4) == 1
+      kele_local = MD_estiff_bothnode_MyMz_release(A(i), E(i), L);
+      gamma = MD_etran(start_coord,end_coord,webdir(i,:));
+      kele_global = gamma'*kele_local*gamma;
+      kstructureglobal(memb_id(i,:),memb_id(i,:)) = kele_global + kstructureglobal(memb_id(i,:),memb_id(i,:));
    end
 end
 
@@ -336,11 +339,6 @@ end
 
 syms("internal_forces_variation", [nele,6]);
 for i =1:nele
-   start_node = ends(i,1);
-   end_node = ends(i,2); 
-   start_coord = coord(start_node,:);
-   end_coord = coord(end_node,:);
-   L = norm(end_coord - start_coord);
 
    syms x;
    internal_forces_variation(i,1:3) = - ELE_FOR(i,1:3) - w(i,1:3)*x;
@@ -412,6 +410,15 @@ disp(vpa(ELE_FOR,6));
 Rs = FEFs + Ksf*Delta_f + Ksn*Delta_n;
 Rn = FEFn + Knf*Delta_f + Knn*Delta_n;
 
+Rall = zeros(nnodes*6,1); % Initiate with size
+Rall(supportDOF) = Rs;
+
+REACT = zeros(nnodes,6);
+for i = 1:nnodes
+    REACT(i,:) = Rall(6*i-5:6*i);
+end
+
+
 disp('Rs');
 disp(vpa(Rs,6));
 
@@ -421,7 +428,7 @@ disp(Rn);
 disp('back-calculating freeDOF load');
 disp(FEFf + Kff*Delta_f + Kfn*Delta_n);
 
-AFLAG = inf;
+AFLAG = 1;
 %
 %  STUDENT NOTE:
 %     In order for this routine to become fully active AFLAG
